@@ -20,41 +20,48 @@ db = SQLAlchemy(app)
 
 
 class Bands(db.Model):
-    BandID = db.Column(db.Integer, primary_key=True)
-    BandName = db.Column(db.String(80), nullable=False)
+    SingerID = db.Column(db.Integer, primary_key=True)
+    SingerNane = db.Column(db.String(80), nullable=False)
     FormedYear = db.Column(db.Integer)
     HomeLocation = db.Column(db.String(80))
     # Relationship: One band has many members + albums
     # members = db.relationship('Members', backref='band', lazy=True)
     memberships = db.relationship('Memberships', backref='band', lazy=True)
-    albums = db.relationship('Albums', backref='band', lazy=True)
+    albumships = db.relationship('Albumships', backref='band', lazy=True)
 
 
 class Members(db.Model):
-    MemberID = db.Column(db.Integer, primary_key=True)
-    # BandID = db.Column(db.Integer, db.ForeignKey('bands.BandID'), nullable=False)
-    MemberName = db.Column(db.String(80), nullable=False)
-    MainPosition = db.Column(db.String(80))
+    SongID = db.Column(db.Integer, primary_key=True)
+    # SingerID = db.Column(db.Integer, db.ForeignKey('bands.SingerID'), nullable=False)
+    SongNane = db.Column(db.String(80), nullable=False)
+    SongArtist = db.Column(db.String(80))
     memberships = db.relationship('Memberships', backref='member', lazy=True)
 
 
 class Memberships(db.Model):
     MembershipID = db.Column(db.Integer, primary_key=True)
-    BandID = db.Column(db.Integer, db.ForeignKey(
-        'bands.BandID'), nullable=False)
-    MemberID = db.Column(db.Integer, db.ForeignKey(
-        'members.MemberID'), nullable=False)
+    SingerID = db.Column(db.Integer, db.ForeignKey(
+        'bands.SingerID'), nullable=False)
+    SongID = db.Column(db.Integer, db.ForeignKey(
+        'members.SongID'), nullable=False)
     StartYear = db.Column(db.Integer)
-    EndYear = db.Column(db.Integer)  # NULL if still active
     Role = db.Column(db.Text)
 
 
 class Albums(db.Model):
     AlbumID = db.Column(db.Integer, primary_key=True)
-    BandID = db.Column(db.Integer, db.ForeignKey(
-        'bands.BandID'), nullable=False)
+    # SingerID = db.Column(db.Integer, db.ForeignKey(
+    #     'bands.SingerID'), nullable=False)
     AlbumTitle = db.Column(db.String(80), nullable=False)
     ReleaseYear = db.Column(db.Integer)
+    albumships = db.relationship('Albumships', backref='albums', lazy=True)
+
+class Albumships(db.Model):
+    AlbumshipID = db.Column(db.Integer, primary_key=True)
+    AlbumID = db.Column(db.Integer, db.ForeignKey(
+        'albums.AlbumID'), nullable=False)
+    SingerID = db.Column(db.Integer, db.ForeignKey(
+        'bands.SingerID'), nullable=False)
 
 # ==========================
 # ROUTES
@@ -70,7 +77,7 @@ def index():
 def add_band():
     if request.method == 'POST':
         new_band = Bands(
-            BandName=request.form['bandname'],
+            SingerNane=request.form['bandname'],
             FormedYear=request.form['formedyear'],
             HomeLocation=request.form['homelocation']
         )
@@ -85,9 +92,9 @@ def add_member():
     bands = Bands.query.all()  # Students see querying with relationships
     if request.method == 'POST':
         new_member = Members(
-            MemberName=request.form['membername'],
-            MainPosition=request.form['mainposition']
-            # BandID=request.form['bandid']
+            SongNane=request.form['membername'],
+            SongArtist=request.form['mainposition']
+            # SingerID=request.form['bandid']
         )
         db.session.add(new_member)
         db.session.commit()
@@ -99,12 +106,22 @@ def add_member():
 def add_album():
     bands = Bands.query.all()
     if request.method == 'POST':
+        print(request.form)
         new_album = Albums(
             AlbumTitle=request.form['albumtitle'],
             ReleaseYear=request.form['releaseyear'],
-            BandID=request.form['bandid']
         )
         db.session.add(new_album)
+        db.session.commit()
+        added_ids = []
+        for key, value in request.form.items():
+            if key.startswith("bandid") and value and not added_ids.__contains__(value):
+                albumship = Albumships(
+                    AlbumID = new_album.AlbumID,
+                    SingerID = int(value),
+                )
+                added_ids.append(value)
+                db.session.add(albumship)
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('add_album.html', bands=bands)
@@ -129,11 +146,10 @@ def add_membership():
     members = Members.query.all()
     if request.method == 'POST':
         membership = Memberships(
-            BandID=request.form.get('bandid'),
-            MemberID=request.form.get('memberid'),
+            SingerID=request.form.get('bandid'),
+            SongID=request.form.get('memberid'),
             Role=request.form.get('role'),
-            StartYear=request.form.get('startyear') or None,
-            EndYear=request.form.get('endyear') or None
+            StartYear=request.form.get('startyear') or None
         )
         db.session.add(membership)
         db.session.commit()
@@ -149,11 +165,10 @@ def edit_membership(id):
     bands = Bands.query.all()
     members = Members.query.all()
     if request.method == 'POST':
-        membership.BandID = request.form.get('bandid')
-        membership.MemberID = request.form.get('memberid')
+        membership.SingerID = request.form.get('bandid')
+        membership.SongID = request.form.get('memberid')
         membership.Role = request.form.get('role')
         membership.StartYear = request.form.get('startyear') or None
-        membership.EndYear = request.form.get('endyear') or None
         db.session.commit()
         flash('Membership updates', 'success')
         return redirect(url_for('view_by_band'))
