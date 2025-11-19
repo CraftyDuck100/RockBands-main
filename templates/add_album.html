@@ -1,17 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Add Album</h2>
-<form method="post">
+<form method="post" onsubmit="return enable()">
     <label>Album Title:</label><input type="text" name="albumtitle"><br>
     <label>Release Year:</label><input type="number" name="releaseyear"><br>
 
-    <label>Band:</label>
-    <select name="bandid">
-        {% for band in bands %}
-        <option value="{{ band.BandID }}">{{ band.BandName }}</option>
-        {% endfor %}
-    </select><br>
-
+    <div id="singers" style="display: grid; width:fit-content">
+        <label style="grid-column: 1;">Virtual Singers:</label>
+        <select style="width: 165px; grid-column: 2;" name="bandid1" onchange="trigger(this)" data-changed="0">
+            <option disabled selected value style="display:none"> -- select an option -- </option>
+            {% for band in bands %}
+            <option value="{{ band.SingerID }}">{{ band.SingerNane }}</option>
+            {% endfor %}
+        </select><br>
+    </div>
     <button type="submit">Save</button>
 </form>
+<script src="{{ url_for('static', filename='album_script.js') }}"></script>
 {% endblock %}

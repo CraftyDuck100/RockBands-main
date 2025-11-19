@@ -1,34 +1,33 @@
 {% extends "base.html" %} {% block content %}
-<h2>Bands</h2>
+<h2>Virtual Singers</h2>
 
 {% for band in bands %}
 <section>
   <h3>
-    {{ band.BandName }} ({{ band.FormedYear }}) {#
-    <a href="{{url_for('edit_band', id=band.BandID)}}">Edit</a>
-    <a href="{{url_for('delete_band', id=band.BandID)}}">Delete</a> #}
+    {{ band.SingerNane }} ({{ band.FormedYear }}) {#
+    <a href="{{url_for('edit_band', id=band.SingerID)}}">Edit</a>
+    <a href="{{url_for('delete_band', id=band.SingerID)}}">Delete</a> #}
   </h3>
-  <p><strong>Home:</strong> {{ band.HomeLocation }}</p>
+  <p><strong>Creator:</strong> {{ band.HomeLocation }}</p>
 
-  <h4>Members</h4>
+  <h4>Apperances</h4>
   <ul>
     {% for m in band.memberships %}
     <li>
-      {{ m.member.MemberName }} – {{ m.Role or m.member.MainPosition }} {% if
-      m.StartYear %} ({{ m.StartYear }}{% if m.EndYear %} – {{ m.EndYear }}{%
-      else %} – present{% endif %}){% endif %} &nbsp;
+      <span style="font-weight: bold;">{{ m.member.SongNane }}</span> by <span style="font-weight: bold;">{{ m.member.SongArtist }}</span> – {{ m.Role or m.member.SongArtist }} {% if
+      m.StartYear %} ({{ m.StartYear }}){% endif %} &nbsp;
       <a href="{{ url_for('edit_membership', id=m.MembershipID) }}">Edit</a> |
       <a href="{{ url_for('delete_membership', id=m.MembershipID) }}">Delete</a>
     </li>
     {% else %}
-    <li><em>No members assigned yet</em></li>
+    <li><em>No apperances assigned yet</em></li>
     {% endfor %}
   </ul>
 
   <h4>Albums</h4>
   <ul>
-    {% for album in band.albums %}
-    <li>{{ album.AlbumTitle }} ({{ album.ReleaseYear }})</li>
+    {% for albumship in band.albumships %}
+    <li>{{ albumship.albums.AlbumTitle }} ({{ albumship.albums.ReleaseYear }})</li>
     {% endfor %}
   </ul>
 </section>

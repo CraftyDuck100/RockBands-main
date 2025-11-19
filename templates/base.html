@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Rock Bands</title>
+    <title>Vocaloids</title>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
@@ -10,14 +10,14 @@
   </head>
   <body>
     <header>
-      <h1>Collection of Great Rock Bands</h1>
+      <h1>Collection of Great Vocaloids and the Like</h1>
       <nav>
         <a href="{{ url_for('index') }}">Home</a> |
-        <a href="{{ url_for('add_band') }}">Add Band</a> |
-        <a href="{{ url_for('add_member') }}">Add Member</a> |
+        <a href="{{ url_for('add_band') }}">Add Virtual Singer</a> |
+        <a href="{{ url_for('add_member') }}">Add Song</a> |
         <a href="{{ url_for('add_album') }}">Add Album</a> |
-        <a href="{{ url_for('add_membership') }}">Add Membership</a> |
-        <a href="{{ url_for('view_by_band') }}">View Band Info</a>
+        <a href="{{ url_for('add_membership') }}">Add Song Ownership</a> |
+        <a href="{{ url_for('view_by_band') }}">View Virtual Singer Info</a>
       </nav>
     </header>
     <main>
